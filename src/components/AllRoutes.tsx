@@ -11,10 +11,10 @@ export default function AllRoutes() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/:id" element={<Edit />} />
+        <Route path="/" element={<Signup/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/dashboard/:id" element={<Edit/>} />
       </Routes>
     </>
   );

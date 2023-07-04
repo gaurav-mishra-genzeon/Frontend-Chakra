@@ -50,14 +50,14 @@ export default function Dashboard() {
       console.error("Error deleting note:", error);
     }
   };
-//status Note
-  const statusNote = async (id:any) => {
-    console.log("Status",id);
+  //status Note
+  const statusNote = async (id: any) => {
+    console.log("Status", id);
     try {
-     await axios.patch(`${url}/status/${id}`);
-     fetchNotes();
+      await axios.patch(`${url}/status/${id}`);
+      fetchNotes();
     } catch (error) {
-      console.error('Error toggling note:', error);
+      console.error("Error toggling note:", error);
     }
   };
 
@@ -98,10 +98,10 @@ export default function Dashboard() {
     deleteNote(id);
   };
 
-   const  toggleStatus=(id:any)=>{
-    statusNote(id)
-   }
-  
+  const toggleStatus = (id: any) => {
+    statusNote(id);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     nav("/login");
@@ -109,7 +109,7 @@ export default function Dashboard() {
 
   return (
     <div>
-       <Navbar/>
+      <Navbar />
       <div>
         {/* notes add */}
         <Container my={3}>
@@ -156,47 +156,57 @@ export default function Dashboard() {
         {/* notes dashboard*/}
         {notes.length > 0 ? (
           notes.map((el) => (
-            <div key={el.id}>
-              <Box mb={3}>
-                <Box p={3} textTransform="capitalize">
-                  <Text as="h5" fontSize="xl" fontWeight="bold" mb={2}>
-                    {el.title}
-                  </Text>
-                  <Text>{el.content}</Text>
-                  <Box>
-                    {el.done ? (
-                      <Button
-                        colorScheme="green"
-                        mx={2}
-                        onClick={() => {
-                          removeHandler(el.id);
-                        }}
-                      >
-                        Done
-                      </Button>
-                    ) : (
-                      <Button
-                        colorScheme="red"
-                        mx={2}
-                        onClick={() => {
-                          toggleStatus(el.id);
-                        }}
-                      >
-                        Not Done
-                      </Button>
-                    )}
-                  </Box>
+            <Box key={el.id} my={3} mx={5}>
+              <Box
+                border="1px"
+                borderColor="green.400"
+                p={3}
+                textTransform="capitalize"
+              >
+                <Text as="h5" fontSize="xl" fontWeight="bold" mb={2}>
+                  {el.title}
+                </Text>
+                <Text fontSize="lg" mb={2}>
+                  {el.content}
+                </Text>
 
+                <Flex>
+                  {!el.done ? (
+                    <Button
+                      type="button"
+                      colorScheme="blue"
+                      onClick={() => nav(`/dashboard/${el.id}`)}
+                    >
+                      Edit
+                    </Button>
+                  ) : (
+                    ""
+                  )}
+                  {el.done ? (
+                    <Button
+                      colorScheme="green"
+                      mx={2}
+                      // onClick={() => {
+                      //   removeHandler(el.id);
+                      // }}
+                    >
+                      Done
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="red"
+                      mx={2}
+                      onClick={() => {
+                        toggleStatus(el.id);
+                      }}
+                    >
+                      Not Done
+                    </Button>
+                  )}
+                  {el.done ? (
+                  ""
+                ) : (
                   <Button
-                    type="button"
-                    colorScheme="blue"
-                    onClick={()=>nav(`/dashboard/${el.id}`)}
-                    // onClick={() => nav(`/dashboard/${id}`})}
-                  >
-                    Edit
-                  </Button>
-                  {
-                    el.done? "": <Button
                     colorScheme="red"
                     mx={2}
                     onClick={() => {
@@ -205,14 +215,15 @@ export default function Dashboard() {
                   >
                     Delete
                   </Button>
-                  }
-                 
-                </Box>
+                )}
+                </Flex>
+
+               
               </Box>
-            </div>
+            </Box>
           ))
         ) : (
-          <p>You currently dont have any tasks</p>
+          <Text>You currently dont have any tasks</Text>
         )}
       </div>
 
