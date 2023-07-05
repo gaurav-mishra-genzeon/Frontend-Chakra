@@ -9,6 +9,7 @@ import {
   Textarea,
   Button,
 } from "@chakra-ui/react";
+import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,16 @@ export default function Dashboard() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [notes, setNotes] = useState<any[]>([]);
+
+// PAGINATION
+  const[todosPerPage,setTodosPerPage] =useState(3)
+  const numoftotalPages= Math.ceil(notes.length/todosPerPage);
+  const pages= [...Array(numoftotalPages+1).keys()].slice(1)
+  const[currentP,setCurrentP]= useState(1);
+  const lastInd = currentP * todosPerPage;
+  const firstInd = lastInd - todosPerPage;
+  const visibleNotes = notes.slice(firstInd, lastInd  );
+
 
   useEffect(() => {
     fetchNotes();
@@ -102,10 +113,17 @@ export default function Dashboard() {
     statusNote(id);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    nav("/login");
-  };
+  const prevHandle=()=>{
+    if (currentP !== 1) {
+      setCurrentP(currentP - 1);
+    }
+  }
+
+  const nextHandle=()=>{
+    if (currentP !== numoftotalPages) {
+      setCurrentP(currentP + 1);
+    }
+  }
 
   return (
     <div>
@@ -143,7 +161,7 @@ export default function Dashboard() {
                 </FormControl>
                 <Button
                   type="submit"
-                  colorScheme="blue"
+                  bgColor="#d2ffdc"
                   onClick={addNotesHandler}
                 >
                   Add Notes
@@ -154,13 +172,12 @@ export default function Dashboard() {
         </Container>
 
         {/* notes dashboard*/}
-        {notes.length > 0 ? (
-          notes.map((el) => (
+        {visibleNotes.length > 0 ? (
+          visibleNotes.map((el) => (
             <Box key={el.id} my={3} mx={5}>
               <Box
-                border="1px"
-                borderColor="green.400"
                 p={3}
+                boxShadow={"rgba(0, 0, 0, 0.35) 0px 5px 15px;"}
                 textTransform="capitalize"
               >
                 <Text as="h5" fontSize="xl" fontWeight="bold" mb={2}>
@@ -174,7 +191,7 @@ export default function Dashboard() {
                   {!el.done ? (
                     <Button
                       type="button"
-                      colorScheme="blue"
+                      bgColor="#e0e091"
                       onClick={() => nav(`/dashboard/${el.id}`)}
                     >
                       Edit
@@ -184,17 +201,14 @@ export default function Dashboard() {
                   )}
                   {el.done ? (
                     <Button
-                      colorScheme="green"
+                      bgColor="#74d474"
                       mx={2}
-                      // onClick={() => {
-                      //   removeHandler(el.id);
-                      // }}
                     >
                       Done
                     </Button>
                   ) : (
                     <Button
-                      colorScheme="red"
+                      bgColor="tomato"
                       mx={2}
                       onClick={() => {
                         toggleStatus(el.id);
@@ -204,30 +218,39 @@ export default function Dashboard() {
                     </Button>
                   )}
                   {el.done ? (
-                  ""
-                ) : (
-                  <Button
-                    colorScheme="red"
-                    mx={2}
-                    onClick={() => {
-                      removeHandler(el.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                )}
+                    ""
+                  ) : (
+                    <Button
+                      bgColor='red.500'
+                      mx={2}
+                      onClick={() => {
+                        removeHandler(el.id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </Flex>
-
-               
               </Box>
             </Box>
           ))
         ) : (
           <Text>You currently dont have any tasks</Text>
         )}
+        <nav>
+             <button className="prev" onClick={prevHandle}>Prev</button>
+        <p>
+         {
+        pages.map((page) =>(
+          <button  key={page} className={`${currentP===page? "active":"pages"}`} onClick={()=>setCurrentP(page)}>{page}</button>
+        ))
+       } 
+        </p>
+        <span  className="next" onClick={nextHandle}>Next</span> 
+        </nav>
+    
       </div>
 
-      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }
