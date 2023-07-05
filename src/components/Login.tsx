@@ -12,12 +12,11 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-// import {useContext} from 'react'
-// import { AppContext } from './context/context'
 type User = {
   email: string;
   password: string;
@@ -28,8 +27,7 @@ export default function Login() {
    email:"", password:""
   })
   
-  // const {setToken}= useContext(AppContext)
-  
+
   const nav= useNavigate()
 
   const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -41,27 +39,41 @@ export default function Login() {
    e.preventDefault();
    const { email, password } = user;
    if (email === "") {
-     alert("email field is required");
+     toast.error("email field is required", {
+      position: "top-center",
+      theme: "colored",
+    });
    } else if (!email.includes("@")) {
-     alert("please enter valid email Address");
+
+     toast.error("please enter valid email address", {
+      position: "top-center",
+      theme: "colored",
+    });
    } else if (password === "") {
-     alert("password field is required");
+     toast.error("password field is required", {
+      position: "top-center",
+      theme: "colored",
+    });
    } else if (password.length < 5) {
-     alert("password length should be greater than five");
+    toast.error("password length should be greater than five", {
+      position: "top-center",
+      theme: "colored",
+    });
    } else {
     try{
       const res= await axios.post('http://localhost:3001/api/login',user)
-      // console.log(res.data)
       if(res.data)
       {
           window.localStorage.setItem('token',res.data.token)
-          setTimeout(()=>{
-            alert("login successful")
-          },500) 
-
+          window.localStorage.setItem('user',res.data.username);
+          toast.success("Login successful, redirecting to Dashboard page!", {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+          });
+         
           setTimeout(()=>{
             nav("/dashboard")
-          },1000)
+          },2000)
       }
       else{
         console.log("error logging in")
@@ -70,7 +82,10 @@ export default function Login() {
     }
     catch(err){
          console.log(err)
-         alert("error logging in");
+         toast.error(`${err.response.data}`, {
+          position: "top-center",
+          theme: "colored",
+        });
     }
   }
 }
@@ -80,6 +95,7 @@ export default function Login() {
       align={'center'}
       justify={'center'}
       bg={useColorModeValue('gray.50', 'gray.800')}>
+           <ToastContainer />
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
           <Heading fontSize={'4xl'}>Sign in to your account</Heading>
@@ -116,6 +132,9 @@ export default function Login() {
                 }}>
                 Sign in
               </Button>
+              <Text align={'center'}>
+                 Don't have an account? <Link onClick={()=>nav("/")} color={'blue.400'}>Create an account</Link>
+                </Text>
             </Stack>
           </Stack>
         </Box>
