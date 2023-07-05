@@ -9,6 +9,8 @@ import {
   Textarea,
   Button,
 } from "@chakra-ui/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { Text } from "@chakra-ui/react";
@@ -21,20 +23,24 @@ export default function Dashboard() {
   const nav = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState<any[]>([]);
 
-// PAGINATION
-  const[todosPerPage,setTodosPerPage] =useState(3)
-  const numoftotalPages= Math.ceil(notes.length/todosPerPage);
-  const pages= [...Array(numoftotalPages+1).keys()].slice(1)
-  const[currentP,setCurrentP]= useState(1);
+  // PAGINATION
+  const [todosPerPage, setTodosPerPage] = useState(3);
+  const numoftotalPages = Math.ceil(notes.length / todosPerPage);
+  const pages = [...Array(numoftotalPages + 1).keys()].slice(1);
+  const [currentP, setCurrentP] = useState(1);
   const lastInd = currentP * todosPerPage;
   const firstInd = lastInd - todosPerPage;
-  const visibleNotes = notes.slice(firstInd, lastInd  );
-
+  const visibleNotes = notes.slice(firstInd, lastInd);
 
   useEffect(() => {
     fetchNotes();
+    window.onpopstate = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    };
   }, []);
 
   //GET Notes
@@ -49,26 +55,40 @@ export default function Dashboard() {
     }
   };
 
-  // console.log(notes)
-
   // Delete Notes
   const deleteNote = async (id: number) => {
-    console.log(id);
     try {
       await axios.delete(`${url}/${id}`, { headers: authHeader() });
       setNotes(notes.filter((note) => note.id !== id));
+      toast.success(`Note deleted successfully`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } catch (error) {
-      console.error("Error deleting note:", error);
+      console.log(error);
+      toast.error(`Error deleting note`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     }
   };
-  //status Note
+
+  //Status Note
   const statusNote = async (id: any) => {
     console.log("Status", id);
     try {
       await axios.patch(`${url}/status/${id}`);
       fetchNotes();
+      toast.success(`Task completed`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } catch (error) {
       console.error("Error toggling note:", error);
+      toast.error(`Error toggling  note`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     }
   };
 
@@ -83,9 +103,15 @@ export default function Dashboard() {
   const addNotesHandler = async (e: any) => {
     e.preventDefault();
     if (title === "") {
-      alert("title cannot be empty");
+      toast.success(`title cannot be empty`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } else if (content === "") {
-      alert("content cannot be empty");
+      toast.success(`content cannot be empty`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } else {
       try {
         const res = await axios.post(
@@ -95,12 +121,19 @@ export default function Dashboard() {
         );
         console.log("res", res.data.notes);
         setNotes((prev) => [res.data.notes, ...prev]);
-        alert(`Note successfully added`);
+        toast.success(`Note successfully added`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+        });
         setTitle("");
         setContent("");
       } catch (error) {
         console.error("Error creating note:", error);
-        alert(`Trouble creating note`);
+
+        toast.error(`Trouble creating note`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+        });
       }
     }
   };
@@ -113,17 +146,17 @@ export default function Dashboard() {
     statusNote(id);
   };
 
-  const prevHandle=()=>{
+  const prevHandle = () => {
     if (currentP !== 1) {
       setCurrentP(currentP - 1);
     }
-  }
+  };
 
-  const nextHandle=()=>{
+  const nextHandle = () => {
     if (currentP !== numoftotalPages) {
       setCurrentP(currentP + 1);
     }
-  }
+  };
 
   return (
     <div>
@@ -131,6 +164,7 @@ export default function Dashboard() {
       <div>
         {/* notes add */}
         <Container my={3}>
+          <ToastContainer />
           <Flex justifyContent="center">
             <Box w="md">
               <form
@@ -200,10 +234,7 @@ export default function Dashboard() {
                     ""
                   )}
                   {el.done ? (
-                    <Button
-                      bgColor="#74d474"
-                      mx={2}
-                    >
+                    <Button bgColor="#74d474" mx={2}>
                       Done
                     </Button>
                   ) : (
@@ -221,7 +252,7 @@ export default function Dashboard() {
                     ""
                   ) : (
                     <Button
-                      bgColor='red.500'
+                      bgColor="red.500"
                       mx={2}
                       onClick={() => {
                         removeHandler(el.id);
@@ -237,20 +268,27 @@ export default function Dashboard() {
         ) : (
           <Text>You currently dont have any tasks</Text>
         )}
-        <nav>
-             <button className="prev" onClick={prevHandle}>Prev</button>
-        <p>
-         {
-        pages.map((page) =>(
-          <button  key={page} className={`${currentP===page? "active":"pages"}`} onClick={()=>setCurrentP(page)}>{page}</button>
-        ))
-       } 
-        </p>
-        <span  className="next" onClick={nextHandle}>Next</span> 
-        </nav>
-    
-      </div>
 
+        <nav>
+          <button className="prev" onClick={prevHandle}>
+            Prev
+          </button>
+          <p>
+            {pages.map((page) => (
+              <button
+                key={page}
+                className={`${currentP === page ? "active" : "pages"}`}
+                onClick={() => setCurrentP(page)}
+              >
+                {page}
+              </button>
+            ))}
+          </p>
+          <span className="next" onClick={nextHandle}>
+            Next
+          </span>
+        </nav>
+      </div>
     </div>
   );
 }

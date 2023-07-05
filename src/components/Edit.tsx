@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import {
   Container,
   Flex,
@@ -10,6 +10,8 @@ import {
   Button,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import authHeader from "../services/auth-header";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -49,9 +51,15 @@ export default function Edit() {
   const editNoteHandler = async (e: any) => {
     e.preventDefault();
     if (title === "") {
-      alert("title cannot be empty");
+      toast.success(`title cannot be empty`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } else if (content === "") {
-      alert("content cannot be empty");
+      toast.success(`content cannot be empty`, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: "colored",
+      });
     } else {
       try {
         const res = await axios.patch(
@@ -60,20 +68,29 @@ export default function Edit() {
           { headers: authHeader() }
         );
         setNotes((prev) => [res.data.notes, ...prev]);
-        alert(`Note successfully edited`);
+        toast.success(`Note successfully edited`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+        });
         setTitle("");
         setContent("");
-
-        nav("/dashboard");
+          setTimeout(()=>{
+             nav("/dashboard");
+          },1000)
+        
       } catch (error) {
         console.error("Error creating note:", error);
-        alert(`Trouble creating note`);
+        toast.error(`Trouble creating note`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+        });
       }
     }
   };
 
   return (
     <Container my={3}>
+      <ToastContainer />
       <Flex justifyContent="center">
         <Box w="md">
           <form
