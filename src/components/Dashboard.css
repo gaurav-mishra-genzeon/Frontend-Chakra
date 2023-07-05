@@ -1,0 +1,36 @@
+
+nav{
+/* 
+    border:1px solid red; */
+    width:50%;
+    margin: auto;
+    padding-bottom: 2rem;
+    padding-top: 1rem; display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style-type: none;
+}
+
+
+.prev, .next, .active,.pages{
+     display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background-color:beige;
+    border: 1px solid black;
+    color: black;
+    border-radius: 5px;
+    cursor: pointer;  
+     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.prev:hover,.next:hover, #btn:hover {
+    background-color: #ccc7ec;
+  }
+
+.active{
+    color:purple;
+    background-color: rgb(160, 216, 49);
+    font-size: 1rem;
+ } 
+
+
